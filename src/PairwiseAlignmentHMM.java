@@ -72,7 +72,7 @@ public class PairwiseAlignmentHMM {
 	//constructor
 
 	public PairwiseAlignmentHMM(){
-		this.File = this.getCurDirecoty() + "\\src\\2017-01-16 uniprot.fasta";
+		this.File = this.getCurDirecoty() + "\\src\\2017-01-16_uniprot.fasta";
 
 	}
 
