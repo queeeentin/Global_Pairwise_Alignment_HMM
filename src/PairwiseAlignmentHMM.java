@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 public class PairwiseAlignmentHMM {
 
-	private  String File;
+	private  String File; 
 	private  double[][] a_prob = new double[][]{    //a_prob[from][to]
 		{0.838, 0.08, 0.08, 0.002},                     //from B to M, X, Y, E
 		{0.838, 0.08, 0.08, 0.002},                     //from M to M, X, Y, E
@@ -64,7 +64,7 @@ public class PairwiseAlignmentHMM {
 
 	//constructor
 	public PairwiseAlignmentHMM(){
-		this.File = this.getCurDirecoty() + "\\2017-01-16 uniprot.fasta";
+		this.File = this.getCurDirecoty() + "\\src\\2017-01-16 uniprot.fasta";
 	}
 
 	private static HashMap<String, Integer> hashMap = new HashMap<String, Integer>();
@@ -217,7 +217,7 @@ public class PairwiseAlignmentHMM {
 					k++;
 				}
 				//            System.out.println(k);
-				new Assg4Q3().globalViterbi(Sequence1000, SequenceX);
+				new PairwiseAlignmentHMM().globalViterbi(Sequence1000, SequenceX);
 
 			}
 		}
