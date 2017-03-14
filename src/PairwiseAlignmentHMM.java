@@ -71,17 +71,49 @@ public class PairwiseAlignmentHMM {
 
 	//=================================================================================================================
 
-	public void globalViterbi(String[] Seq, String[] Seqx){
-		//=====initialization=============
-		String [][] Vm = new String[Seq.length][Seqx.length];         //Vm[seq1][seq2]    [score : 0:M/ 1:X/ 2:Y]
-		String [][] Vx = new String[Seq.length][Seqx.length];         //Vx[seq1][seq2]
-		String [][] Vy = new String[Seq.length][Seqx.length];         //Vy[seq1][seq2]
-		Vm[0][0] = "1";
+    public void globalViterbi(String[] Seq, String[] Seqx){
+        //=====initialization=============
+        String [][] Vm = new String[Seq.length][Seqx.length];         //Vm[seq1][seq2]    [score : 0:M/ 1:X/ 2:Y]
+        String [][] Vx = new String[Seq.length][Seqx.length];         //Vx[seq1][seq2]
+        String [][] Vy = new String[Seq.length][Seqx.length];         //Vy[seq1][seq2]
+        Vm[0][0] = "1";
+        Vx[0][0] = "1";
+        Vy[0][0] = "1";
+        int product =1;
+        for(int i=0; i<Seq.length;i++ ){
+            if(Seq[i]!= null) {
+                int ref1000 = hashMap.get(Seq[i]);
+                double ini = Math.log(0.08 * (Math.pow(0.35, i - 1)) * (product * q_a[ref1000]));
+                // round ini before toString()
+                Vm[i][0] = String.valueOf(ini);
+                Vx[i][0] = String.valueOf(ini);
+                Vy[i][0] = String.valueOf(ini);
+            }else{
+                break;
+            }
+        }
+        product =1;
+        for(int i=0; i<Seqx.length;i++ ){
+            if(Seqx[i]!= null) {
+                int ref1000 = hashMap.get(Seqx[i]);
+                double ini = Math.log(0.08 * (Math.pow(0.35, i - 1)) * (product * q_a[ref1000]));
+                Vm[0][i] = String.valueOf(ini);
+                Vx[0][i] = String.valueOf(ini);
+                Vy[0][i] = String.valueOf(ini);
+            }else{
+                break;
+            }
+        }
 
-		//=====Recurrence=================
+        //=====Recurrence=================
+        int i =0;
+        int j =0;
+        while(Seq[i]!=null && Seqx[j]!=null){
 
-		//=====Termination================
-	}
+        }
+
+        //=====Termination================
+    }
 
 	public static String getCurDirecoty (){
 
@@ -185,7 +217,7 @@ public class PairwiseAlignmentHMM {
 					k++;
 				}
 				//            System.out.println(k);
-				//new Assg4Q3().globalViterbi(Sequence1000, SequenceX);
+				new Assg4Q3().globalViterbi(Sequence1000, SequenceX);
 
 			}
 		}
