@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.io.File;
+import java.io.FileInputStream;
 
 public class PairwiseAlignmentHMM {
 
@@ -72,7 +73,9 @@ public class PairwiseAlignmentHMM {
 	//constructor
 
 	public PairwiseAlignmentHMM(){
-		this.File = this.getCurDirecoty() + "\\src\\2017-01-16_uniprot.fasta";
+
+		this.File = this.getCurDirecoty() + "/src/2017-01-16_uniprot.fasta";
+
 
 	}
 
@@ -234,6 +237,7 @@ public class PairwiseAlignmentHMM {
 		try{
 			fr = new FileReader(pwa.File);        //change to File
 			br = new BufferedReader(fr);
+			
 
 			String cl;
 			boolean found = false;
