@@ -85,66 +85,79 @@ public class PairwiseAlignmentHMM {
         String [][] Vm = new String[Seq.length][Seqx.length];         //Vm[seq1][seq2]    [score : 0:M/ 1:X/ 2:Y]
         String [][] Vx = new String[Seq.length][Seqx.length];         //Vx[seq1][seq2]
         String [][] Vy = new String[Seq.length][Seqx.length];         //Vy[seq1][seq2]
-        Vm[0][0] = "1: ";
+        Vm[0][0] = "0: ";
         Vx[0][0] = "0: ";
         Vy[0][0] = "0: ";
 
-        int product =1;
-        for(int i=0; i<Seq.length;i++ ){
-            if(Seq[i]!= null) {
-                int ref1000 = hashMap.get(Seq[i]);
-                double ini = Math.log(0.08 * (Math.pow(0.35, i - 1)) * (product * q_a[ref1000]));
-                // round ini before toString()
-                Vm[i][0] = String.valueOf(ini).concat(":  ");
-                Vx[i][0] = String.valueOf(ini).concat(":  ");
-                Vy[i][0] = String.valueOf(ini).concat(":  ");
-            }else{
-                break;
-            }
-        }
-        product =1;
-        for(int i=0; i<Seqx.length;i++ ){
-            if(Seqx[i]!= null) {
-                int refX = hashMap.get(Seqx[i]);
-                double ini = Math.log(0.08 * (Math.pow(0.35, i - 1)) * (product * q_a[refX]));
-                Vm[0][i] = String.valueOf(ini).concat(":  ");
-                Vx[0][i] = String.valueOf(ini).concat(":  ");
-                Vy[0][i] = String.valueOf(ini).concat(":  ");
-            }else{
-                break;
-            }
-        }
-
         //=====Recurrence=================
-        int i =1;
-        int j =1;
+        int i =0;
+        int j =0;
         while(Seq[i]!=null && Seqx[j]!=null){
         	int ref1000 = hashMap.get(Seq[i]);
         	int refX = hashMap.get(Seqx[j]);
         	//=======Vm=====================
-        	double valvm = Double.parseDouble(Vm[i-1][j-1].split(":")[0]);		//get the score Vm
-			double valvx = Double.parseDouble(Vx[i-1][j-1].split(":")[0]);		//get the score Vx
-			double valvy = Double.parseDouble(Vy[i-1][j-1].split(":")[0]);		//get the score Vy
+			double valvm ;
+			double valvx ;
+			double valvy ;
+			if(i-1 == -1 || j-1 == -1){
+				valvm =0;
+				valvx =0;
+				valvy =0;
+			}else {
+				 valvm = Double.parseDouble(Vm[i - 1][j - 1].split(":")[0]);        //get the score Vm
+				 valvx = Double.parseDouble(Vx[i - 1][j - 1].split(":")[0]);        //get the score Vx
+				 valvy = Double.parseDouble(Vy[i - 1][j - 1].split(":")[0]);        //get the score Vy
+			}
         	double tempM = Math.log(Math.abs(Math.max(valvm*a_prob[1][0], Math.max(valvx*a_prob[2][0], valvy*a_prob[3][0]))));
         	if(tempM == Math.log(Math.abs(valvm*a_prob[1][0]))) {
         		double finalM = Math.log(p_ab[ref1000][refX]) + tempM;
 				Vm[i][j] = String.valueOf(finalM).concat(": 0");
 			}else if (tempM == Math.log(Math.abs(valvx*a_prob[2][0]))){
-        		double finalX = Math.log(Math.log(p_ab[ref1000][refX])) + tempM;
+        		double finalX = Math.log(p_ab[ref1000][refX]) + tempM;
 				Vm[i][j] = String.valueOf(finalX).concat(": 1");
 			}else if(tempM == Math.log(Math.abs(valvy*a_prob[3][0]))){
-				double finalY = Math.log(Math.log(p_ab[ref1000][refX])) + tempM;
+				double finalY = Math.log(p_ab[ref1000][refX]) + tempM;
 				Vm[i][j] = String.valueOf(finalY).concat(": 2");
 			}
 			System.out.println("valm" + valvm);			//-4.442079991122024
 			System.out.println("valx" + valvx);
 			System.out.println("valy" + valvy);
-//			System.out.println(Vm[i][j]);
-//			System.out.println(Vx[i][j]);
-//			System.out.println(Vy[i][j]);
+			System.out.println(Vm[i][j]);
+			System.out.println(Vx[i][j]);
+			System.out.println(Vy[i][j]);
 			//=======Vx=====================
+            if(i-1 == -1 || j-1 == -1){
+                valvm =0;
+                valvx =0;
+            }else {
+                valvm = Double.parseDouble(Vm[i - 1][j].split(":")[0]);        //get the score Vm
+                valvx = Double.parseDouble(Vx[i - 1][j].split(":")[0]);        //get the score Vx
+            }
+            double tempX = Math.log(Math.abs(Math.max(valvm*a_prob[1][1], valvx*a_prob[2][1])));
+            if(tempX == Math.log(Math.abs(valvm*a_prob[1][1]))) {
+                double finalM = Math.log(q_a[ref1000]) + tempX;
+                Vx[i][j] = String.valueOf(finalM).concat(": 0");
+            }else if (tempX == Math.log(Math.abs(valvx*a_prob[2][1]))){
+                double finalX = Math.log(q_a[ref1000]) + tempX;
+                Vx[i][j] = String.valueOf(finalX).concat(": 1");
+            }
 
 			//=======Vy=====================
+            if(i-1 == -1 || j-1 == -1){
+                valvm =0;
+                valvy =0;
+            }else {
+                valvm = Double.parseDouble(Vm[i][j-1].split(":")[0]);        //get the score Vm
+                valvy = Double.parseDouble(Vy[i][j-1].split(":")[0]);        //get the score Vx
+            }
+            double tempY = Math.log(Math.abs(Math.max(valvm*a_prob[1][2], valvy*a_prob[3][2])));
+            if(tempY == Math.log(Math.abs(valvm*a_prob[1][2]))) {
+                double finalM = Math.log(q_a[refX]) + tempY;
+                Vy[i][j] = String.valueOf(finalM).concat(": 0");
+            }else if (tempY == Math.log(Math.abs(valvx*a_prob[3][2]))){
+                double finalY = Math.log(q_a[refX]) + tempY;
+                Vy[i][j] = String.valueOf(finalY).concat(": 2");
+            }
 
 			i++;
 			j++;
