@@ -93,9 +93,9 @@ public class PairwiseAlignmentHMM {
         String [][] Vm = new String[yAxisLenth][xAxisLenth];         //Vm[seq1][seq2]    [score : 0:M/ 1:X/ 2:Y]
         String [][] Vx = new String[yAxisLenth][xAxisLenth];         //Vx[seq1][seq2]
         String [][] Vy = new String[yAxisLenth][xAxisLenth];         //Vy[seq1][seq2]
-         Vm[0][0] = "0:  ";
-        Vx[0][0] = String.valueOf(Double.NEGATIVE_INFINITY).concat(":  ");
-        Vy[0][0] = String.valueOf(Double.NEGATIVE_INFINITY).concat(":  ");
+         Vm[0][0] = "0:  -1";
+        Vx[0][0] = String.valueOf(Double.NEGATIVE_INFINITY).concat(":  -1");
+        Vy[0][0] = String.valueOf(Double.NEGATIVE_INFINITY).concat(":  -1");
 
         //Initialize the first column
 		double product =1;
@@ -104,9 +104,9 @@ public class PairwiseAlignmentHMM {
 				int ref1000 = hashMap.get(Seq[i]);
 				double ini = Math.log(0.08 * (Math.pow(0.35, i )) * (product * q_a[ref1000]));
 				// round ini before toString()
-				Vm[i+1][0] = String.valueOf(Double.NEGATIVE_INFINITY).concat(":  ");
-				Vx[i+1][0] = String.valueOf(ini).concat(":  ");
-				Vy[i+1][0] = String.valueOf(Double.NEGATIVE_INFINITY).concat(":  ");
+				Vm[i+1][0] = String.valueOf(Double.NEGATIVE_INFINITY).concat(":  -1");
+				Vx[i+1][0] = String.valueOf(ini).concat(":  -1");
+				Vy[i+1][0] = String.valueOf(Double.NEGATIVE_INFINITY).concat(":  -1");
 				product *= q_a[ref1000];
                 System.out.println("init Vx: " + Vx[i+1][0]);
 			}else{
@@ -119,9 +119,9 @@ public class PairwiseAlignmentHMM {
 			if(Seqx[i]!= null) {
 				int refX = hashMap.get(Seqx[i]);
 				double ini = Math.log(0.08 * (Math.pow(0.35, i )) * (product * q_a[refX]));
-				Vm[0][i+1] = String.valueOf(Double.NEGATIVE_INFINITY).concat(":  ");
-				Vx[0][i+1] = String.valueOf(Double.NEGATIVE_INFINITY).concat(":  ");
-				Vy[0][i+1] = String.valueOf(ini).concat(":  ");
+				Vm[0][i+1] = String.valueOf(Double.NEGATIVE_INFINITY).concat(":  -1");
+				Vx[0][i+1] = String.valueOf(Double.NEGATIVE_INFINITY).concat(":  -1");
+				Vy[0][i+1] = String.valueOf(ini).concat(":  -1");
 				product*= q_a[refX];
                 System.out.println("init Vy: " + Vy[0][i+1]);
 			}else{
@@ -240,76 +240,75 @@ public class PairwiseAlignmentHMM {
         return result;
     }
 	
-	public static String[] doTraceback(String[] Seq, String seq2, int seqNum){
-		String[] seq2CharList = seq2.split("");
+	public static String[] doTraceback(String[] Seq, String[] seq2, int seqNum){
+
 		StringBuilder templateAlignment = new StringBuilder();
 		StringBuilder sequenceAlignment = new StringBuilder();
-		ArrayList matricesObject =  globalViterbi(Seq,seq2CharList, seqNum);
+		ArrayList matricesObject =  globalViterbi(Seq,seq2,seqNum);
 		String [][] Vm = (String[][]) matricesObject.get(0);         //Vm[seq1][seq2]    [score : 0:M/ 1:X/ 2:Y]
 	    String [][] Vx = (String[][]) matricesObject.get(1);         //Vx[seq1][seq2]
 	    String [][] Vy = (String[][]) matricesObject.get(2);
-		
-		// TODO: do the traceback here jumping bwtween the three matrices
-	    double maxFromVm = Double.parseDouble(Vm[Seq.length][seq2CharList.length].split(":")[0]);
-	    String FromWhichVm = Vm[Seq.length][seq2CharList.length].split(":")[1].trim();
-        double maxFromVx = Double.parseDouble(Vx[Seq.length][seq2CharList.length].split(":")[0]);
-        String FromWhichVx = Vx[Seq.length][seq2CharList.length].split(":")[1].trim();
-        double maxFromVy = Double.parseDouble(Vy[Seq.length][seq2CharList.length].split(":")[0]);
-        String FromWhichVy = Vy[Seq.length][seq2CharList.length].split(":")[1].trim();
+
+	    double maxFromVm = Double.parseDouble(Vm[Seq.length][seq2.length].split(":")[0]);
+	    String FromWhichVm = Vm[Seq.length][seq2.length].split(":")[1].trim();
+        double maxFromVx = Double.parseDouble(Vx[Seq.length][seq2.length].split(":")[0]);
+        String FromWhichVx = Vx[Seq.length][seq2.length].split(":")[1].trim();
+        double maxFromVy = Double.parseDouble(Vy[Seq.length][seq2.length].split(":")[0]);
+        String FromWhichVy = Vy[Seq.length][seq2.length].split(":")[1].trim();
        
         double termination = Math.max(maxFromVm, Math.max(maxFromVx,maxFromVy));
         String priorMatrix = "";
-        int i = seq2CharList.length-1;
-        int j = Seq.length-1;
+        int i = seq2.length;
+        int j = Seq.length;
         //Initialize the alignment
         if (termination == maxFromVm){
-        	templateAlignment.append(Seq[j]);
-        	sequenceAlignment.append(seq2CharList[i]);
+        	templateAlignment.append(Seq[j-1]);
+        	sequenceAlignment.append(seq2[i-1]);
         	i -=1;
         	j -=1;
         	priorMatrix = FromWhichVm;
         	
         }else if (termination == maxFromVx){ //Delection xi,-
-        	templateAlignment.append(Seq[j]);
+        	templateAlignment.append(Seq[j-1]);
         	sequenceAlignment.append("-");
         	j -=1;
         	priorMatrix = FromWhichVx;
         }else if (termination == maxFromVy){
         	templateAlignment.append("-");
-        	sequenceAlignment.append(seq2CharList[i]);
+        	sequenceAlignment.append(seq2[i-1]);
         	i-=1;
         	priorMatrix = FromWhichVy;
         }
         
         
-        while (i!=0 || j !=0){
-        	if (i != 0) {
+        while (i!= 0 || j != 0){
+        	if (i != 0 ) {
         		if (j != 0) {
         			if (priorMatrix.equals("0")){
-                    	templateAlignment.append(Seq[j]);
-                    	sequenceAlignment.append(seq2CharList[i]);
+                    	templateAlignment.append(Seq[j-1]);
+                    	sequenceAlignment.append(seq2[i-1]);
                     	i -=1;
                     	j -=1;
                     	priorMatrix = Vm[j][i].split(":")[1].trim();
                     	
                     }else if (priorMatrix.equals("1")){ //Delection xi,-
-                    	templateAlignment.append(Seq[j]);
+                    	templateAlignment.append(Seq[j-1]);
                     	sequenceAlignment.append("-");
                     	j -=1;
                     	priorMatrix = Vx[j][i].split(":")[1].trim();
                     }else if (priorMatrix.equals("2")){
                     	templateAlignment.append("-");
-                    	sequenceAlignment.append(seq2CharList[i]);
+                    	sequenceAlignment.append(seq2[i-1]);
                     	i-=1;
                     	priorMatrix = Vy[j][i].split(":")[1].trim();
                     }
         		} else { // i != 0 and j == 0
         			templateAlignment.append("-");
-                	sequenceAlignment.append(seq2CharList[i]);
+                	sequenceAlignment.append(seq2[i-1]);
                 	i-=1;
         		}
         	} else { // i == 0 and j != 0
-				templateAlignment.append(Seq[j]);
+				templateAlignment.append(Seq[j-1]);
 				sequenceAlignment.append("-");
 				j -=1;
         	}
@@ -318,8 +317,9 @@ public class PairwiseAlignmentHMM {
         }
         
         String[] answer = new String[2];
-        answer[0] = sequenceAlignment.toString();
-        answer[1] = templateAlignment.toString();
+        answer[0] = sequenceAlignment.reverse().toString();
+        answer[1] = templateAlignment.reverse().toString();
+
 		return answer;
 		
 	}
@@ -447,11 +447,14 @@ public class PairwiseAlignmentHMM {
 			}
 */
 
-  String[] sampleX = new String[]{"T", "A", "P","P", "A","C"};
-  String[] sampleY = new String[]{"T","A","A","C"};;
-  String sampleYString = "TAAC";
-  pwa.globalViterbi(sampleX,sampleY,1);
-  String[] alignment = pwa.doTraceback(sampleX, sampleYString, 1);
+			String[] sampleX = new String[]{"T", "A", "P","P", "A","C"};
+			String[] sampleY = new String[]{"T","A","A","C"};;
+			// String sampleYString = "TAAC";
+			pwa.globalViterbi(sampleX,sampleY,1);
+			String[] alignment = pwa.doTraceback(sampleX, sampleY, 1);
+
+			System.out.println(alignment[0]);
+			System.out.println(alignment[1]);
 		}
 	}
 
