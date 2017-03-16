@@ -1,7 +1,7 @@
 /**
  * Created by user on 3/8/2017.
  */
-import com.sun.jmx.snmp.internal.SnmpSubSystem;
+//import com.sun.jmx.snmp.internal.SnmpSubSystem;
 
 import java.lang.String;
 import java.io.BufferedReader;
@@ -85,7 +85,7 @@ public class PairwiseAlignmentHMM {
 
 	//=================================================================================================================
 
-    public static Object globalViterbi(String[] Seq, String[] Seqx, int seqNum){
+    public static ArrayList globalViterbi(String[] Seq, String[] Seqx, int seqNum){
         //=====initialization=============
     	int xAxisLenth = Seqx.length+1;
     	int yAxisLenth = Seq.length+1;
@@ -202,8 +202,12 @@ public class PairwiseAlignmentHMM {
         terminationScoresList[seqNum]=termination;
         System.out.println("termination");
 
-
-        return new Object[] {Vm, Vx, Vy};
+        ArrayList res = new ArrayList(3);
+        res.add(Vm);
+        res.add(Vx);
+        res.add(Vy);
+        
+        return res;
 
     }
 
@@ -232,15 +236,85 @@ public class PairwiseAlignmentHMM {
         return result;
     }
 	
-	public static String doTraceback(String[] Seq, String seq2, int seqNum){
+	public static String[] doTraceback(String[] Seq, String seq2, int seqNum){
 		String[] seq2CharList = seq2.split("");
-		String returnString ="";
-		globalViterbi(Seq,seq2CharList, seqNum);
+		StringBuilder templateAlignment = new StringBuilder();
+		StringBuilder sequenceAlignment = new StringBuilder();
+		ArrayList matricesObject =  globalViterbi(Seq,seq2CharList, seqNum);
+		String [][] Vm = (String[][]) matricesObject.get(0);         //Vm[seq1][seq2]    [score : 0:M/ 1:X/ 2:Y]
+	    String [][] Vx = (String[][]) matricesObject.get(1);         //Vx[seq1][seq2]
+	    String [][] Vy = (String[][]) matricesObject.get(2);
+		
 		//TODO: do the traceback here jumping bwtween the three matrices
-		
-		
-		
-		return returnString;
+	    double maxFromVm = Double.parseDouble(Vm[Seq.length][seq2CharList.length].split(":")[0]);
+	    String FromWhichVm = Vm[Seq.length][seq2CharList.length].split(":")[1].trim();
+        double maxFromVx = Double.parseDouble(Vx[Seq.length][seq2CharList.length].split(":")[0]);
+        String FromWhichVx = Vx[Seq.length][seq2CharList.length].split(":")[1].trim();
+        double maxFromVy = Double.parseDouble(Vy[Seq.length][seq2CharList.length].split(":")[0]);
+        String FromWhichVy = Vy[Seq.length][seq2CharList.length].split(":")[1].trim();
+       
+        double termination = Math.max(maxFromVm, Math.max(maxFromVx,maxFromVy));
+        String priorMatrix = "";
+        int i = seq2CharList.length-1;
+        int j = Seq.length-1;
+        //Initialize the alignment
+        if (termination == maxFromVm){
+        	templateAlignment.append(Seq[j]);
+        	sequenceAlignment.append(seq2CharList[i]);
+        	i -=1;
+        	j -=1;
+        	priorMatrix = FromWhichVm;
+        	
+        }else if (termination == maxFromVx){ //Delection xi,-
+        	templateAlignment.append(Seq[j]);
+        	sequenceAlignment.append("-");
+        	j -=1;
+        	priorMatrix = FromWhichVx;
+        }else if (termination == maxFromVy){
+        	templateAlignment.append("-");
+        	sequenceAlignment.append(seq2CharList[i]);
+        	i-=1;
+        	priorMatrix = FromWhichVy;
+        }
+        
+        
+        while (i!=0 || j !=0){
+        	if (i != 0) {
+        		if (j != 0) {
+        			if (priorMatrix.equals("0")){
+                    	templateAlignment.append(Seq[j]);
+                    	sequenceAlignment.append(seq2CharList[i]);
+                    	i -=1;
+                    	j -=1;
+                    	priorMatrix = Vm[j][i].split(":")[1].trim();
+                    	
+                    }else if (priorMatrix.equals("1")){ //Delection xi,-
+                    	templateAlignment.append(Seq[j]);
+                    	sequenceAlignment.append("-");
+                    	j -=1;
+                    	priorMatrix = Vx[j][i].split(":")[1].trim();
+                    }else if (priorMatrix.equals("2")){
+                    	templateAlignment.append("-");
+                    	sequenceAlignment.append(seq2CharList[i]);
+                    	i-=1;
+                    	priorMatrix = Vy[j][i].split(":")[1].trim();
+                    }
+        		} else { // i != 0 and j == 0
+        			templateAlignment.append("-");
+                	sequenceAlignment.append(seq2CharList[i]);
+                	i-=1;
+        		}
+        	} else { // i == 0 and j != 0
+        		
+        	}
+        	
+        	
+        }
+        
+        String[] answer = new String[2];
+        answer[0] = sequenceAlignment.toString();
+        answer[1] = templateAlignment.toString();
+		return answer;
 		
 	}
 
@@ -368,8 +442,10 @@ public class PairwiseAlignmentHMM {
 */
 
   String[] sampleX = new String[]{"T", "A", "P","P", "A","C"};
-  String[] sampleY = new String[]{"T","A","A","C"};
+  String[] sampleY = new String[]{"T","A","A","C"};;
+  String sampleYString = "TAAC";
   pwa.globalViterbi(sampleX,sampleY,1);
+  String[] alignment = pwa.doTraceback(sampleX, sampleYString, 1);
 		}
 	}
 
