@@ -93,20 +93,22 @@ public class PairwiseAlignmentHMM {
         String [][] Vm = new String[yAxisLenth][xAxisLenth];         //Vm[seq1][seq2]    [score : 0:M/ 1:X/ 2:Y]
         String [][] Vx = new String[yAxisLenth][xAxisLenth];         //Vx[seq1][seq2]
         String [][] Vy = new String[yAxisLenth][xAxisLenth];         //Vy[seq1][seq2]
-        Vm[0][0] = "1: ";
-        Vx[0][0] = "0: ";
-        Vy[0][0] = "0: ";
+         Vm[0][0] = "0:  ";
+        Vx[0][0] = String.valueOf(Double.NEGATIVE_INFINITY).concat(":  ");
+        Vy[0][0] = String.valueOf(Double.NEGATIVE_INFINITY).concat(":  ");
 
         //Initialize the first column
-		int product =1;
+		double product =1;
 		for(int i=0; i<Seq.length;i++ ){
 			if(Seq[i]!= null) {
 				int ref1000 = hashMap.get(Seq[i]);
-				double ini = Math.log(0.08 * (Math.pow(0.35, i - 1)) * (product * q_a[ref1000]));
+				double ini = Math.log(0.08 * (Math.pow(0.35, i )) * (product * q_a[ref1000]));
 				// round ini before toString()
-				Vm[i+1][0] = String.valueOf(0).concat(":  ");
+				Vm[i+1][0] = String.valueOf(Double.NEGATIVE_INFINITY).concat(":  ");
 				Vx[i+1][0] = String.valueOf(ini).concat(":  ");
-				Vy[i+1][0] = String.valueOf(0).concat(":  ");
+				Vy[i+1][0] = String.valueOf(Double.NEGATIVE_INFINITY).concat(":  ");
+				product *= q_a[ref1000];
+                System.out.println("init Vx: " + Vx[i+1][0]);
 			}else{
 				break;
 			}
@@ -116,10 +118,12 @@ public class PairwiseAlignmentHMM {
 		for(int i=0; i<Seqx.length;i++ ){
 			if(Seqx[i]!= null) {
 				int refX = hashMap.get(Seqx[i]);
-				double ini = Math.log(0.08 * (Math.pow(0.35, i - 1)) * (product * q_a[refX]));
-				Vm[0][i+1] = String.valueOf(0).concat(":  ");
-				Vx[0][i+1] = String.valueOf(0).concat(":  ");
+				double ini = Math.log(0.08 * (Math.pow(0.35, i )) * (product * q_a[refX]));
+				Vm[0][i+1] = String.valueOf(Double.NEGATIVE_INFINITY).concat(":  ");
+				Vx[0][i+1] = String.valueOf(Double.NEGATIVE_INFINITY).concat(":  ");
 				Vy[0][i+1] = String.valueOf(ini).concat(":  ");
+				product*= q_a[refX];
+                System.out.println("init Vy: " + Vy[0][i+1]);
 			}else{
 				break;
 			}
@@ -129,7 +133,7 @@ public class PairwiseAlignmentHMM {
         for(int i =1; i<yAxisLenth; i++) {
 		    for(int j=1; j<xAxisLenth; j++) {
 		    	System.out.println("P" + i + " "+ j);
-                if (Seq[i-1] != null && Seqx[j-1] != null) {
+//                if (Seq[i-1] != null && Seqx[j-1] != null) {
                     int ref1000 = hashMap.get(Seq[i-1]);
                     int refX = hashMap.get(Seqx[j-1]);
                     //=======Vm=====================
@@ -142,14 +146,14 @@ public class PairwiseAlignmentHMM {
                     valvx = Double.parseDouble(Vx[i - 1][j - 1].split(":")[0]);        //get the score Vx
                     valvy = Double.parseDouble(Vy[i - 1][j - 1].split(":")[0]);        //get the score Vy
 
-                    double tempM = Math.log(Math.abs(Math.max(valvm * a_prob[1][0], Math.max(valvx * a_prob[2][0], valvy * a_prob[3][0]))));
-                    if (tempM == Math.log(Math.abs(valvm * a_prob[1][0]))) {
+                    double tempM = Math.max(valvm + Math.log(Math.abs(a_prob[1][0])), Math.max(valvx + Math.log(Math.abs(a_prob[2][0])), valvy + Math.log(Math.abs(a_prob[3][0]))));
+                        if (tempM == valvm + Math.log(Math.abs(a_prob[1][0]))) {
                         double finalM = Math.log(p_ab[ref1000][refX]) + tempM;
                         Vm[i][j] = String.valueOf(finalM).concat(": 0");                    //store score and pointer to Vm
-                    } else if (tempM == Math.log(Math.abs(valvx * a_prob[2][0]))) {
+                    } else if (tempM == valvx + Math.log(Math.abs(a_prob[2][0]))) {
                         double finalX = Math.log(p_ab[ref1000][refX]) + tempM;
                         Vm[i][j] = String.valueOf(finalX).concat(": 1");                    //store score and pointer to Vx
-                    } else if (tempM == Math.log(Math.abs(valvy * a_prob[3][0]))) {
+                    } else if (tempM == valvy + Math.log(Math.abs(a_prob[3][0]))) {
                         double finalY = Math.log(p_ab[ref1000][refX]) + tempM;
                         Vm[i][j] = String.valueOf(finalY).concat(": 2");                    //store score and pointer to Vy
                     }
@@ -163,11 +167,11 @@ public class PairwiseAlignmentHMM {
                     valvm = Double.parseDouble(Vm[i - 1][j].split(":")[0]);        //get the score Vm
                     valvx = Double.parseDouble(Vx[i - 1][j].split(":")[0]);        //get the score Vx
 
-                    double tempX = Math.log(Math.abs(Math.max(valvm * a_prob[1][1], valvx * a_prob[2][1])));
-                    if (tempX == Math.log(Math.abs(valvm * a_prob[1][1]))) {
+                    double tempX = Math.max(valvm + Math.log(Math.abs(a_prob[1][1])), valvx + Math.log(Math.abs(a_prob[2][1])));
+                    if (tempX == valvm + Math.log(Math.abs(a_prob[1][1]))) {
                         double finalM = Math.log(q_a[ref1000]) + tempX;
                         Vx[i][j] = String.valueOf(finalM).concat(": 0");                    //store score and pointer to Vm
-                    } else if (tempX == Math.log(Math.abs(valvx * a_prob[2][1]))) {
+                    } else if (tempX == valvx + Math.log(Math.abs(a_prob[2][1]))) {
                         double finalX = Math.log(q_a[ref1000]) + tempX;
                         Vx[i][j] = String.valueOf(finalX).concat(": 1");                    //store score and pointer to Vx
                     }
@@ -177,19 +181,19 @@ public class PairwiseAlignmentHMM {
                     valvm = Double.parseDouble(Vm[i][j - 1].split(":")[0]);        //get the score Vm
                     valvy = Double.parseDouble(Vy[i][j - 1].split(":")[0]);        //get the score Vy
 
-                    double tempY = Math.log(Math.abs(Math.max(valvm * a_prob[1][2], valvy * a_prob[3][2])));
-                    if (tempY == Math.log(Math.abs(valvm * a_prob[1][2]))) {
+                    double tempY = Math.max(valvm + Math.log(Math.abs(a_prob[1][2])), valvy + Math.log(Math.abs(a_prob[3][2])));
+                    if (tempY == valvm + Math.log(Math.abs(a_prob[1][2]))) {
                         double finalM = Math.log(q_a[refX]) + tempY;
                         Vy[i][j] = String.valueOf(finalM).concat(": 0");                    //store score and pointer to Vm
-                    } else if (tempY == Math.log(Math.abs(valvy * a_prob[3][2]))) {
+                    } else if (tempY == valvy + Math.log(Math.abs(a_prob[3][2]))) {
                         double finalY = Math.log(q_a[refX]) + tempY;
                         Vy[i][j] = String.valueOf(finalY).concat(": 2");                    //store score and pointer to Vy
                     }
                     System.out.println("Vy: " + Vy[i][j]);
 
-                }else{
-                    break;
-                }
+//                }else{
+//                    break;
+//                }
             }
         }
 
