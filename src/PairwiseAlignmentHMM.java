@@ -245,7 +245,7 @@ public class PairwiseAlignmentHMM {
 	    String [][] Vx = (String[][]) matricesObject.get(1);         //Vx[seq1][seq2]
 	    String [][] Vy = (String[][]) matricesObject.get(2);
 		
-		//TODO: do the traceback here jumping bwtween the three matrices
+		// TODO: do the traceback here jumping bwtween the three matrices
 	    double maxFromVm = Double.parseDouble(Vm[Seq.length][seq2CharList.length].split(":")[0]);
 	    String FromWhichVm = Vm[Seq.length][seq2CharList.length].split(":")[1].trim();
         double maxFromVx = Double.parseDouble(Vx[Seq.length][seq2CharList.length].split(":")[0]);
@@ -305,7 +305,9 @@ public class PairwiseAlignmentHMM {
                 	i-=1;
         		}
         	} else { // i == 0 and j != 0
-        		
+				templateAlignment.append(Seq[j]);
+				sequenceAlignment.append("-");
+				j -=1;
         	}
         	
         	
