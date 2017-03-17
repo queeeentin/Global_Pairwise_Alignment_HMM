@@ -450,9 +450,10 @@ public class PairwiseAlignmentHMM {
 			
 			maxThreeAlignmentIndeces = pwa.indexesOfTopElements(pwa.terminationScoresList,3);
 			System.out.println(maxThreeAlignmentIndeces);
-			for (int j = 0; j < maxThreeAlignmentIndeces.size();i++){
+			for (int j = 0; j < maxThreeAlignmentIndeces.size();j++){
 				int index = maxThreeAlignmentIndeces.get(j);
-				String name = Header[index].split("|")[2];
+				String name = Header[index].split(" ")[0];
+			    name = name.split("|")[2];
 				double value = pwa.terminationScoresList[index];
 				System.out.println("Index=" + index + " Name=" + name +  " ln Pr="+ value);
 				String[] SeqX = new String[Seq[index].length()];
