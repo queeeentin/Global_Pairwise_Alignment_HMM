@@ -201,7 +201,7 @@ public class PairwiseAlignmentHMM {
         
         double termination = Math.max(maxFromVm, Math.max(maxFromVx,maxFromVy))+  Math.log(0.002);
         terminationScoresList[seqNum]=termination;
-        System.out.println("termination" + termination);
+//        System.out.println("termination" + termination);
 
         ArrayList res = new ArrayList(3);
         res.add(Vm);
@@ -215,27 +215,43 @@ public class PairwiseAlignmentHMM {
 	public static String getCurDirecoty (){
 
 		String workingDir = System.getProperty("user.dir");
-		System.out.println(workingDir);
+//		System.out.println(workingDir);
 		return workingDir;
 
 	}
 	
-	
+	//TODO: change the 50 to terminationScoreList.lenth when doing full tes
 	public static ArrayList<Integer> indexesOfTopElements(Double[]terminationScoresList, int nummax) {
-        Double[] copy =  Arrays.copyOf(terminationScoresList,1000);
-        Arrays.sort(terminationScoresList);
+        Double[] copy =  Arrays.copyOf(terminationScoresList,50);
+        //tourists.removeAll(Collections.singleton(null))
+        Arrays.sort(copy);
         Double[] honey = Arrays.copyOfRange(copy,copy.length - nummax, copy.length);
         ArrayList<Integer> result = new ArrayList<Integer>(nummax);
+        result.add(0);
+        result.add(0);
+        result.add(0);
         int resultPos = 0;
-        for(int i = 0; i < terminationScoresList.length; i++) {
+        for(int i = 0; i < 50; i++) {
             double onTrial = terminationScoresList[i];
             int index = Arrays.binarySearch(honey,onTrial);
-            if(index < 0) continue;
-            resultPos++;
+            if(index < 0) continue;    
             result.set(resultPos, i);
+            resultPos++;
         }
         return result;
     }
+	
+//	public static ArrayList<Integer> indexesOfTopElements(Double[]terminationScoresList, int nummax) {
+//	    List<Integer> indices = new ArrayList<Integer>();
+//	    int max =  getMaxValue(list);
+//	    for (int i = 0; i < list.size(); i++) {
+//	       if(list.get(i) == max) {
+//	           indices.add(list.get(i));
+//	        }
+//	     }
+//
+//	     return indices;
+//	}
 	
 	public static String[] doTraceback(String[] Seq, String[] seq2, int seqNum){
 
@@ -424,7 +440,7 @@ public class PairwiseAlignmentHMM {
 //				System.out.println("sequence100 "+ Sequence1000.length);
 //				System.out.println("SequenceX "+ SequenceX.length);
 
-				            System.out.println(j);
+//				            System.out.println(j);
 				pwa.globalViterbi(Sequence1000, SequenceX, j);
 
 
@@ -433,9 +449,10 @@ public class PairwiseAlignmentHMM {
 			ArrayList<Integer> maxThreeAlignmentIndeces = new ArrayList<Integer>();
 			
 			maxThreeAlignmentIndeces = pwa.indexesOfTopElements(pwa.terminationScoresList,3);
-			for (int j = 0; i < maxThreeAlignmentIndeces.size();i++){
+			System.out.println(maxThreeAlignmentIndeces);
+			for (int j = 0; j < maxThreeAlignmentIndeces.size();i++){
 				int index = maxThreeAlignmentIndeces.get(j);
-				String name = Header[index];
+				String name = Header[index].split("|")[2];
 				double value = pwa.terminationScoresList[index];
 				System.out.println("Index=" + index + " Name=" + name +  " ln Pr="+ value);
 				String[] SeqX = new String[Seq[index].length()];
