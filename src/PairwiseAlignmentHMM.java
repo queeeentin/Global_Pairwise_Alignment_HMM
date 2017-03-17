@@ -7,10 +7,7 @@ import java.lang.String;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.io.File;
 import java.io.FileInputStream;
 
@@ -108,7 +105,7 @@ public class PairwiseAlignmentHMM {
 				Vx[i+1][0] = String.valueOf(ini).concat(":  -1");
 				Vy[i+1][0] = String.valueOf(Double.NEGATIVE_INFINITY).concat(":  -1");
 				product *= q_a[ref1000];
-                System.out.println("init Vx: " + Vx[i+1][0]);
+//                System.out.println("init Vx: " + Vx[i+1][0]);
 			}else{
 				break;
 			}
@@ -123,7 +120,7 @@ public class PairwiseAlignmentHMM {
 				Vx[0][i+1] = String.valueOf(Double.NEGATIVE_INFINITY).concat(":  -1");
 				Vy[0][i+1] = String.valueOf(ini).concat(":  -1");
 				product*= q_a[refX];
-                System.out.println("init Vy: " + Vy[0][i+1]);
+//                System.out.println("init Vy: " + Vy[0][i+1]);
 			}else{
 				break;
 			}
@@ -132,12 +129,12 @@ public class PairwiseAlignmentHMM {
         //=====Recurrence=================
         for(int i =1; i<yAxisLenth; i++) {
 		    for(int j=1; j<xAxisLenth; j++) {
-		    	System.out.println("P" + i + " "+ j);
+//		    	System.out.println("P" + i + " "+ j);
 //                if (Seq[i-1] != null && Seqx[j-1] != null) {
                     int ref1000 = hashMap.get(Seq[i-1]);
                     int refX = hashMap.get(Seqx[j-1]);
                     //=======Vm=====================
-                    System.out.println("Vm");
+//                    System.out.println("Vm");
                     double valvm;
                     double valvx;
                     double valvy;
@@ -160,10 +157,10 @@ public class PairwiseAlignmentHMM {
 //                    System.out.println("valm" + valvm);            //-4.442079991122024
 //                    System.out.println("valx" + valvx);
 //                    System.out.println("valy" + valvy);
-                    System.out.println("Vm: " + Vm[i][j]);
+//                    System.out.println("Vm: " + Vm[i][j]);
 
                     //=======Vx=====================
-                    System.out.println("Vx");
+//                    System.out.println("Vx");
                     valvm = Double.parseDouble(Vm[i - 1][j].split(":")[0]);        //get the score Vm
                     valvx = Double.parseDouble(Vx[i - 1][j].split(":")[0]);        //get the score Vx
 
@@ -175,9 +172,9 @@ public class PairwiseAlignmentHMM {
                         double finalX = Math.log(q_a[ref1000]) + tempX;
                         Vx[i][j] = String.valueOf(finalX).concat(": 1");                    //store score and pointer to Vx
                     }
-                    System.out.println("Vx: " + Vx[i][j]);
+//                    System.out.println("Vx: " + Vx[i][j]);
                     //=======Vy=====================
-                    System.out.println("Vy");
+//                    System.out.println("Vy");
                     valvm = Double.parseDouble(Vm[i][j - 1].split(":")[0]);        //get the score Vm
                     valvy = Double.parseDouble(Vy[i][j - 1].split(":")[0]);        //get the score Vy
 
@@ -189,7 +186,7 @@ public class PairwiseAlignmentHMM {
                         double finalY = Math.log(q_a[refX]) + tempY;
                         Vy[i][j] = String.valueOf(finalY).concat(": 2");                    //store score and pointer to Vy
                     }
-                    System.out.println("Vy: " + Vy[i][j]);
+//                    System.out.println("Vy: " + Vy[i][j]);
 
 //                }else{
 //                    break;
@@ -202,9 +199,9 @@ public class PairwiseAlignmentHMM {
         double maxFromVx = Double.parseDouble(Vx[Seq.length][Seqx.length].split(":")[0]);
         double maxFromVy = Double.parseDouble(Vy[Seq.length][Seqx.length].split(":")[0]);
         
-        double termination = Math.max(maxFromVm, Math.max(maxFromVx,maxFromVy))* 0.002;
+        double termination = Math.max(maxFromVm, Math.max(maxFromVx,maxFromVy))+  Math.log(0.002);
         terminationScoresList[seqNum]=termination;
-        System.out.println("termination");
+        System.out.println("termination" + termination);
 
         ArrayList res = new ArrayList(3);
         res.add(Vm);
@@ -405,7 +402,7 @@ public class PairwiseAlignmentHMM {
 			}
 
 //			String Seq1000 = Seq[1000];
-  /*          String Seq1000 = Seq[59];
+            String Seq1000 = Seq[59];
 			System.out.println(Seq1000);
 			String[] Sequence1000 = new String[Seq1000.length()];
 			int i =0;
@@ -415,7 +412,7 @@ public class PairwiseAlignmentHMM {
 				SeqLength++;
 			}
 			//call functions
-			for(int j=0; j<1000; j++){
+			for(int j=0; j<50; j++){
 				String SeqIndX = Seq[j];
 				String[] SequenceX = new String[SeqIndX.length()];
 				int k=0;
@@ -424,10 +421,10 @@ public class PairwiseAlignmentHMM {
 					k++;
 					SeqXLength++;
 				}
-				System.out.println("sequence100 "+ Sequence1000.length);
-				System.out.println("SequenceX "+ SequenceX.length);
+//				System.out.println("sequence100 "+ Sequence1000.length);
+//				System.out.println("SequenceX "+ SequenceX.length);
 
-				//            System.out.println(k);
+				            System.out.println(j);
 				pwa.globalViterbi(Sequence1000, SequenceX, j);
 
 
@@ -436,25 +433,32 @@ public class PairwiseAlignmentHMM {
 			ArrayList<Integer> maxThreeAlignmentIndeces = new ArrayList<Integer>();
 			
 			maxThreeAlignmentIndeces = pwa.indexesOfTopElements(pwa.terminationScoresList,3);
-			
 			for (int j = 0; i < maxThreeAlignmentIndeces.size();i++){
 				int index = maxThreeAlignmentIndeces.get(j);
 				String name = Header[index];
 				double value = pwa.terminationScoresList[index];
 				System.out.println("Index=" + index + " Name=" + name +  " ln Pr="+ value);
-				
-				String alignment = pwa.doTraceback(Sequence1000, Seq[index], j);
+				String[] SeqX = new String[Seq[index].length()];
+				int k = 0;
+				for(String ret: Seq[index].split("")){
+					SeqX[k] = ret;
+					k++;
+					SeqXLength++;
+				}
+				String[] alignment = pwa.doTraceback(Sequence1000, SeqX, j);
+				for(int m =0; m<alignment.length; m++ ){
+                    System.out.println(alignment[m]);
+                }
 			}
-*/
 
-			String[] sampleX = new String[]{"T", "A", "P","P", "A","C"};
-			String[] sampleY = new String[]{"T","A","A","C"};;
-			// String sampleYString = "TAAC";
-			pwa.globalViterbi(sampleX,sampleY,1);
-			String[] alignment = pwa.doTraceback(sampleX, sampleY, 1);
+//=======================testing sample=========================================================
+//			String[] sampleX = new String[]{"T", "A", "P","P", "A","C"};
+//			String[] sampleY = new String[]{"T","A","A","C"};;
+//			// String sampleYString = "TAAC";
+//			pwa.globalViterbi(sampleX,sampleY,1);
+//			String[] alignment = pwa.doTraceback(sampleX, sampleY, 1);
 
-			System.out.println(alignment[0]);
-			System.out.println(alignment[1]);
+
 		}
 	}
 
